@@ -9,6 +9,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.lang.IllegalArgumentException
+import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.SoftAssertions
 
 @RunWith(JUnit4::class)
 class InputCheckerTest {
@@ -44,7 +46,7 @@ class InputCheckerTest {
     @Test
     fun test_3文字以上で英字と数字の組み合わせの時trueを返すこと() {
         val actual = target.isValid("abc123")
-        assertEquals(actual, true)
+        assertThat(actual).isTrue()
     }
 
     @Test
@@ -56,6 +58,38 @@ class InputCheckerTest {
     @Test(expected = IllegalArgumentException::class)
     fun test_nullの時にIllegalArgumentExceptionを投げること() {
         target.isValid(null)
+    }
+
+    @Test
+    fun test_文字のアサーション() {
+        assertThat("TOKYO")
+            .`as`("TEXT CHECK TOKYO")
+            .isEqualTo("TOKYO")
+            .isEqualToIgnoringCase("tokyo")
+            .isNotEqualTo("KYOTO")
+            .isNotBlank()
+            .startsWith("TO")
+            .endsWith("YO")
+            .contains("OKY")
+            .matches("[A-Z]{5}")
+            .isInstanceOf(String::class.java)
+    }
+
+    @Test
+    fun test_文字のソフトアサーション() {
+        SoftAssertions().apply {
+            assertThat("TOKYO")
+                .`as`("TEXT CHECK TOKYO")
+                .isEqualTo("HOKKAIDO")
+                .isEqualToIgnoringCase("tokyo")
+                .isNotEqualTo("KYOTO")
+                .isNotBlank()
+                .startsWith("TO")
+                .endsWith("YO")
+                .contains("OKY")
+                .matches("[A-Z]{5}")
+                .isInstanceOf(String::class.java)
+        }.assertAll() // ...(4)
     }
 
 //    @Ignore("テスト対象が仮実装なので一時的にスキップ")

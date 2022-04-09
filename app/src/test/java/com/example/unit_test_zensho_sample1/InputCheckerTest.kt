@@ -11,6 +11,8 @@ import org.junit.runners.JUnit4
 import java.lang.IllegalArgumentException
 import org.assertj.core.api.Assertions.*
 import org.assertj.core.api.SoftAssertions
+import java.lang.Exception
+import java.lang.RuntimeException
 
 @RunWith(JUnit4::class)
 class InputCheckerTest {
@@ -80,7 +82,7 @@ class InputCheckerTest {
         SoftAssertions().apply {
             assertThat("TOKYO")
                 .`as`("TEXT CHECK TOKYO")
-                .isEqualTo("HOKKAIDO")
+                .isEqualTo("KYOTO")
                 .isEqualToIgnoringCase("tokyo")
                 .isNotEqualTo("KYOTO")
                 .isNotBlank()
@@ -97,4 +99,59 @@ class InputCheckerTest {
 //    fun test_一時スキップ() {
 //        target.isValid("")
 //    }
+
+    @Test
+    fun test_リスト() {
+        val target = listOf("Giants", "Dodgers", "Athletics")
+        assertThat(target)
+            .hasSize(3)
+            .contains("Dodgers")
+            .containsOnly("Athletics", "Giants", "Dodgers")
+            .containsExactly("Giants", "Dodgers", "Athletics")
+            .doesNotContain("Padres")
+    }
+}
+
+class TeamTest {
+    data class BallTeam(
+        val name: String,
+        val city: String,
+        val stadium: String,
+    )
+
+    val target = listOf(
+        BallTeam("Giants", "San Francisco", "AT&T Park"),
+        BallTeam("Dodgers", "Los Angels", "Dodger Stadium"),
+        BallTeam("Angels", "Los Angels", "Angel Stadium"),
+        BallTeam("Athletics", "Oakland", "Oakland Coliseum"),
+        BallTeam("Padres", "San Diego", "Petco Park"),
+    )
+
+    @Test
+    fun test_フィルタ() {
+        assertThat(target)
+            .filteredOn { team -> team.city.startsWith("San") }
+            .filteredOn { team -> team.city.endsWith("Francisco") }
+            .extracting("name", String::class.java)
+            .containsExactly("Giants")
+
+        assertThat(target)
+            .filteredOn { team -> team.city == "Los Angels" }
+            .extracting("name", "stadium")
+            .containsExactly(
+                tuple("Dodgers", "Dodger Stadium"),
+                tuple("Angels", "Angel Stadium")
+            )
+    }
+
+    @Test
+    fun 例外のテスト() {
+        assertThatExceptionOfType(IllegalArgumentException::class.java)
+            .isThrownBy { functionMayThrow(null) }
+    }
+
+    fun functionMayThrow(text: String?): String {
+        if (text == null) throw IllegalArgumentException()
+        return "true"
+    }
 }

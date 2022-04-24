@@ -3,6 +3,7 @@ package com.example.unit_test_zensho_sample1
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -118,6 +119,7 @@ class WeatherForecastTest {
     }
 }
 
+// モックに対するメソッド呼び出し検証
 class WeatherRecorderTest {
     lateinit var weatherForecast: WeatherForecast
     lateinit var recorder: WeatherRecorder
@@ -143,5 +145,25 @@ class WeatherRecorderTest {
             verify(recorder, times(1)).record(capture())
             assertThat(firstValue.description).isEqualTo("Weather is RAINY")
         }
+    }
+}
+
+// スパイを使ったテスト
+class WeatherSpy {
+    lateinit var weatherForecast: WeatherForecast
+    lateinit var formatter: WeatherFormatter
+
+    @Before
+    fun setUp() {
+        formatter = spy(WeatherFormatter())
+        val satellite = Satellite()
+        val recorder = WeatherRecorder()
+        weatherForecast = WeatherForecast(satellite, recorder, formatter)
+    }
+
+    @Test
+    fun レコードした際にフォーマット処理が呼ばれているかのテスト() {
+        weatherForecast.recordCurrentWeather(1.1, 2.2)
+        verify(formatter, times(1)).format(any())
     }
 }

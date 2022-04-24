@@ -2,6 +2,8 @@ package com.example.unit_test_zensho_sample1
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.After
 import org.junit.Before
@@ -112,5 +114,24 @@ class WeatherForecastTest {
             }
             .withMessage("ERROR")
             .withNoCause()
+    }
+}
+
+class WeatherRecorderTest {
+    lateinit var weatherForecast: WeatherForecast
+    lateinit var recorder: WeatherRecorder
+
+    @Before
+    fun setUp() {
+        recorder = mock(name = "MockRecoder")
+        val satellite = Satellite()
+        val formatter = WeatherFormatter()
+        weatherForecast = WeatherForecast(satellite, recorder, formatter)
+    }
+
+    @Test
+    fun レコードが呼ばれていること() {
+        weatherForecast.recordCurrentWeather(37.0, -122.0)
+        verify(recorder, times(1)).record(any())
     }
 }

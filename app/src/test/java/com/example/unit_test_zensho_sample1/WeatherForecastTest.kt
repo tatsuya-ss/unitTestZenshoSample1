@@ -1,6 +1,7 @@
 package com.example.unit_test_zensho_sample1
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
@@ -23,10 +24,10 @@ import java.lang.RuntimeException
 // テスト対象メソッド実行時に、依存コンポーネントに与える値や挙動の検証
 // recordメソッドのテストの際に、recordメソッドの値や挙動の検証？
 class MockWeatherRecorder : WeatherRecorder() {
-    var weather: String? = null  // 記録時に渡された天気を記録するプロパティ
+    var weather: Record? = null  // 記録時に渡された天気を記録するプロパティ
     var isCalled = false // メソッドが呼び出されたかを記録するプロパティ
 
-    override fun record(weather: String) {
+    override fun record(weather: Record) {
         this.weather = weather
         isCalled = true
     }
@@ -133,5 +134,14 @@ class WeatherRecorderTest {
     fun レコードが呼ばれていること() {
         weatherForecast.recordCurrentWeather(37.0, -122.0)
         verify(recorder, times(1)).record(any())
+    }
+
+    @Test
+    fun レコードされる引数を検証() {
+        weatherForecast.recordCurrentWeather(37.0, -122.2)
+        argumentCaptor<Record>().apply {
+            verify(recorder, times(1)).record(capture())
+            assertThat(firstValue.description).isEqualTo("Weather is RAINY")
+        }
     }
 }

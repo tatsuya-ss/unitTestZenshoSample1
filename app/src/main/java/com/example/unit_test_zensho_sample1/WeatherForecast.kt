@@ -15,8 +15,8 @@ open class WeatherForecast(
 
     fun recordCurrentWeather(latitude: Double, longitude: Double) {
         val weather = satellite.getWeather(latitude, longitude)
-        val formatted = formatter.format(weather)
-        recorder.record(formatted)
+        val description = formatter.format(weather)
+        recorder.record(Record(description))
     }
 }
 
@@ -31,8 +31,10 @@ open class Satellite {  // openにしてサブクラスからのオーバーラ�
     }
 }
 
+class Record(val description: String)
+
 open class WeatherRecorder {
-    open fun record(weather: String) {
+    open fun record(weather: Record) {
         // DBに記録など。。。
     }
 }

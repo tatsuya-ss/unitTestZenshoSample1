@@ -1,7 +1,6 @@
 package com.example.unit_test_zensho_sample1
 
-
-class WeatherForecast(
+open class WeatherForecast(
     val satellite: Satellite,
     val recorder: WeatherRecorder,
     val formatter: WeatherFormatter,

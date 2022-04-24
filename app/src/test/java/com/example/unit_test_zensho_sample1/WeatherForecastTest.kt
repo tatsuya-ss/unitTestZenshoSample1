@@ -1,5 +1,6 @@
 package com.example.unit_test_zensho_sample1
 
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

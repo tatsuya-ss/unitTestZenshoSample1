@@ -1,6 +1,7 @@
 package com.example.unit_test_zensho_sample1
 
 import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -45,10 +46,12 @@ class WeatherForecastTest {
     lateinit var weatherForecast: WeatherForecast
 //    lateinit var recorder: MockWeatherRecorder
     lateinit var formatter: SpyWeatherFormatter
+    lateinit var satellite: Satellite
 
     @Before
     fun setUp() {
-        val satellite = Satellite()
+        satellite = mock(name = "MockSatellite")
+        whenever(satellite.getWeather()).thenReturn(Weather.SUNNY)
         val recorder = WeatherRecorder()
         formatter = SpyWeatherFormatter()
         weatherForecast = WeatherForecast(
@@ -64,14 +67,6 @@ class WeatherForecastTest {
 
     @Test
     fun shouldBringUmbrella() {
-        val satellite = StubSatellite(Weather.SUNNY)
-        val recorder = WeatherRecorder()
-        formatter = SpyWeatherFormatter()
-        weatherForecast = WeatherForecast(
-            satellite = satellite,
-            recorder = recorder,
-            formatter = formatter,
-        )
         val actual = weatherForecast.shouldBringUmbrella()
         assertThat(actual).isFalse()
     }

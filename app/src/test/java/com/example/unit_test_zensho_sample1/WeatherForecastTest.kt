@@ -1,19 +1,21 @@
 package com.example.unit_test_zensho_sample1
 
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.assertj.core.api.Assertions.*
+import java.lang.RuntimeException
 
 // Satelliteのスタブ化
-class StubSatellite(val anyWeather: Weather) :
-    Satellite() {  // スタブを作成。任意のWeatherを返すようにコンストラクタ引数で変えられる。
-    override fun getWeather(): Weather {
-        return anyWeather
-    }
-}
+//class StubSatellite(val anyWeather: Weather) :
+//    Satellite() {  // スタブを作成。任意のWeatherを返すようにコンストラクタ引数で変えられる。
+//    override fun getWeather(): Weather {
+//        return anyWeather
+//    }
+//}
 
 // モック化
 // テスト対象メソッド実行時に、依存コンポーネントに与える値や挙動の検証
@@ -44,14 +46,24 @@ class SpyWeatherFormatter : WeatherFormatter() {
 
 class WeatherForecastTest {
     lateinit var weatherForecast: WeatherForecast
-//    lateinit var recorder: MockWeatherRecorder
     lateinit var formatter: SpyWeatherFormatter
     lateinit var satellite: Satellite
 
     @Before
     fun setUp() {
         satellite = mock(name = "MockSatellite")
-        whenever(satellite.getWeather()).thenReturn(Weather.SUNNY)
+        whenever(satellite.getWeather(any(), any()))
+//            .thenAnswer { invocation ->
+//                val latitude = invocation.arguments[0] as Double
+//                val longitude = invocation.arguments[1] as Double
+//                if (latitude in 20.424086..45.550999 &&
+//                    longitude in 122.424086..153.980789) {
+//                    return@thenAnswer Weather.SUNNY
+//                } else {
+//                    return@thenAnswer Weather.RAINY
+//                }
+//            }
+            .thenThrow(RuntimeException("ERROR"))
         val recorder = WeatherRecorder()
         formatter = SpyWeatherFormatter()
         weatherForecast = WeatherForecast(
@@ -67,13 +79,13 @@ class WeatherForecastTest {
 
     @Test
     fun shouldBringUmbrella() {
-        val actual = weatherForecast.shouldBringUmbrella()
+        val actual = weatherForecast.shouldBringUmbrella(any(), any())
         assertThat(actual).isFalse()
     }
 
     @Test
     fun recordCurrentWeather_assertCalledCalled() {
-        weatherForecast.recordCurrentWeather()
+        weatherForecast.recordCurrentWeather(any(), any())
         val isCalled = formatter.isCalled
         assertThat(isCalled).isTrue()
 
@@ -84,5 +96,21 @@ class WeatherForecastTest {
                 Weather.CLOUDY,
                 Weather.RAINY
             ) // メソッド呼び出し時に引数として渡されたWeatherオブジェクトを検証
+    }
+
+    @Test
+    fun shouldBringUmbrella_givenInJapan_returnsFalse() {
+        val actual = weatherForecast.shouldBringUmbrella(35.0, 139.0)
+        assertThat(actual).isFalse()
+    }
+
+    @Test
+    fun 傘がいるかのメソッドで例外が発生した時にERRORメッセージを吐くこと() {
+        assertThatExceptionOfType(RuntimeException::class.java)
+            .isThrownBy {
+                weatherForecast.shouldBringUmbrella(1.1, 2.2)
+            }
+            .withMessage("ERROR")
+            .withNoCause()
     }
 }

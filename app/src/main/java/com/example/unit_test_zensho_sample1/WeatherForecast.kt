@@ -5,16 +5,16 @@ open class WeatherForecast(
     val recorder: WeatherRecorder,
     val formatter: WeatherFormatter,
 ) {  // テストケースからスタブ差し替えられるようにコンストラクタ引数を受け取る
-    fun shouldBringUmbrella(): Boolean {
-        val weather = satellite.getWeather()
+    fun shouldBringUmbrella(latitude: Double, longitude: Double): Boolean {
+        val weather = satellite.getWeather(latitude, longitude)
         return when (weather) {
             Weather.SUNNY, Weather.CLOUDY -> false
             Weather.RAINY -> true
         }
     }
 
-    fun recordCurrentWeather() {
-        val weather = satellite.getWeather()
+    fun recordCurrentWeather(latitude: Double, longitude: Double) {
+        val weather = satellite.getWeather(latitude, longitude)
         val formatted = formatter.format(weather)
         recorder.record(formatted)
     }
@@ -26,7 +26,7 @@ enum class Weather {
 
 // Satelliteのスタブ化
 open class Satellite {  // openにしてサブクラスからのオーバーライドを可能にする。
-    open fun getWeather(): Weather {
+    open fun getWeather(latitude: Double, longitude: Double): Weather {
         return Weather.RAINY
     }
 }
